@@ -77,20 +77,66 @@ var DB = {
 };
 
 app.get("/games",auth, (req, res) => {
+
+  var HATEOAS = [
+    {
+      href: "https://localhost:45678/game/:id",
+      method:"DELETE",
+      rel: "delete_game"
+
+    },
+    {
+      href: "https://localhost:45678/game/:id",
+      method:"GET",
+      rel: "get_game"
+    },
+    {
+      href: "https://localhost:45678/auth",
+      method:"POST",
+      rel: "login"
+    }
+  ]
   
   res.statusCode = 200;
-  res.json(DB.games);
+  res.json({games: DB.games, _links: HATEOAS});
 
 });
 
 app.get("/game/:id",auth, (req, res) => {
+  
   if (isNaN(req.params.id)) {
     res.sendStatus(400);
   } else {
     var id = parseInt(req.params.id);
+
+    var HATEOAS = [
+      {
+        href: "https://localhost:45678/game/"+id,
+        method:"DELETE",
+        rel: "delete_game"
+  
+      },
+      {
+        href: "https://localhost:45678/game/"+id,
+        method:"PUT",
+        rel: "edit_game"
+  
+      },
+      {
+        href: "https://localhost:45678/game/"+id,
+        method:"GET",
+        rel: "get_game"
+      },
+      {
+        href: "https://localhost:45678/games",
+        method:"GET",
+        rel: "get_all_games"
+      }
+    ]
+
     var game = DB.games.find((g) => g.id == id);
     if (game != undefined) {
-      res.json(game);
+      res.json({game, _links: HATEOAS});
       res.statusCode = 200;
     } else {
       res.sendStatus(404);
